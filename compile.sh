@@ -15,7 +15,7 @@ do
 	if [ "${next_arg:0:2}" = "--" ];then next_arg="${next_arg:2}"; next_arg_is_cmd=1; elif [ "${next_arg:0:1}" = "-" ];then next_arg="${next_arg:1}"; next_arg_is_cmd=1; fi
 	# 如果当前参数是命令参数
 	if [ "${arg_is_cmd}" -eq 1 ];then
-		if [ ! $next_arg ];then next_arg=$arg;fi # 如果下一个参数为空,则设为当前命令
+		if [ ! "$next_arg" ];then next_arg=$arg;fi # 如果下一个参数为空,则设为当前命令
 		# 如果是一个命令的话,并且检查下一个参数是不是命令,如果不是的话就是当前命令的值
 		if [ "${next_arg_is_cmd}" -eq 0 ];then eval 'arg_'"${arg}="'$'"next_arg";else eval 'arg_'"${arg}="'$'"arg"; fi
 	fi
