@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # 萧鸣 boois@qq.com
 arg_idx=0 # 设定一个索引变量
+arg_arr=() # 设定变量数组
 for x in "$@" # 遍历所有参数
 do
-	arg_idx=`expr $arg_idx + 1` # 当前索引+1
-	arg=`eval echo '$'"${arg_idx}"` # 获取当前参数
+	arg_idx=`expr ${arg_idx} + 1` # 当前索引+1
+	arg=`eval echo '$''{'"${arg_idx}"'}'` # 获取当前参数
 	arg_is_cmd=0 # 当前参数是否是命令参数
-	next_arg_idx=`expr $arg_idx + 1` # 当前索引+1
-	next_arg=`eval echo '$'"${next_arg_idx}"` # 获取下一个参数
+	next_arg_idx=`expr ${arg_idx} + 1` # 当前索引+1
+	next_arg=`eval echo '$''{'"${next_arg_idx}"'}'` # 获取下一个参数
 	next_arg_is_cmd=0 # 下一个参数是否是命令参数
 	# 检查当前参数是否是-或者--开头
 	if [ "${arg:0:2}" = "--" ];then arg="${arg:2}"; arg_is_cmd=1; elif [ "${arg:0:1}" = "-" ];then arg="${arg:1}"; arg_is_cmd=1; fi
@@ -17,7 +18,13 @@ do
 	if [ "${arg_is_cmd}" -eq 1 ];then
 		if [ ! "$next_arg" ];then next_arg=$arg;fi # 如果下一个参数为空,则设为当前命令
 		# 如果是一个命令的话,并且检查下一个参数是不是命令,如果不是的话就是当前命令的值
-		if [ "${next_arg_is_cmd}" -eq 0 ];then eval 'arg_'"${arg}="'$'"next_arg";else eval 'arg_'"${arg}="'$'"arg"; fi
+		if [ "${next_arg_is_cmd}" -eq 0 ];then
+			# 如果是最后一个则赋值给自己否则使用下一个参数
+			if [ ${arg_idx} -eq $# ];then eval 'arg_'"${arg}="'$'"arg";else eval 'arg_'"${arg}="'$'"next_arg";fi
+		else
+			eval 'arg_'"${arg}="'$'"arg";
+		fi
+		arg_arr[$arg_idx]="arg_${arg}";
 	fi
 done
 
@@ -29,5 +36,8 @@ if [ "$arg_h" ];then
 	printf "  %-5s %-20s\n" "-a" "other desciption"
 fi
 
-
-
+# 下面是通过遍历数组来依次访问所有参数
+for x in ${arg_arr[@]}
+do
+	eval echo "${x}="'$'"${x}"
+done
